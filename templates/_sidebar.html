@@ -1,0 +1,39 @@
+<div id="sidebar-wrapper">
+  <div class="sidebar-logo text-center py-4">
+    <img src="{{ url_for('static', filename='images/mmbl-logo.png') }}"
+         alt="MMBL Logo"
+         class="img-fluid" />
+  </div>
+  <nav class="list-group list-group-flush flex-column h-100">
+    <!-- Section Scroll Links for the Dashboard page -->
+    <a href="#filters-section" class="list-group-item list-group-item-action">
+      Filters
+    </a>
+    <a href="#summary-section" class="list-group-item list-group-item-action">
+      Summary
+    </a>
+    <a href="#decline-section" class="list-group-item list-group-item-action">
+      Country Declines
+    </a>
+    <a href="#daily-comparison-section" class="list-group-item list-group-item-action">
+      Daily Comparison
+    </a>
+    <a href="#yearly-comparison-section" class="list-group-item list-group-item-action">
+      Yearly Comparison
+    </a>
+    <a href="#forecast-section" class="list-group-item list-group-item-action">
+      Forecast
+    </a>
+
+    <!-- Existing route links -->
+    <a href="{{ url_for('settings') }}"
+       class="list-group-item list-group-item-action">
+      Settings
+    </a>
+
+    <a href="{{ url_for('upload_file') }}"
+       class="list-group-item list-group-item-action upload-tile mt-auto">
+      Upload
+    </a>
+  </nav>
+</div>

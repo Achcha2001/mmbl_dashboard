@@ -1,0 +1,229 @@
+/* ==============================
+   MMBL Sidebar Theme + Futuristic Dashboard
+   ============================== */
+
+/* 1) Root variables */
+:root {
+  /* Sidebar theme */
+  --sidebar-bg:        #ffffff;
+  --link-color:        #004182;
+  --link-hover-bg:     #f0f4f8;
+  --tile-bg:           #FFD100;
+  --tile-hover-bg:     #e0c200;
+  --active-bg:         #000000;
+  --active-color:      #ffffff;
+  --border-color:      #d1d5db;
+
+  /* Futuristic accents */
+  --fut-bg-start:      #011270;
+  --fut-bg-mid:        #020f14;
+  --fut-bg-end:        #c1be02;
+  --fut-panel-bg:      rgba(20,20,30,0.8);
+  --fut-panel-border:  #444;
+  --fut-accent:        #0f3460;
+}
+
+/* 2) Import futuristic font */
+@import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700&display=swap');
+
+/* 3) Base styles */
+body {
+  margin: 0;
+  font-family: 'Orbitron', sans-serif;
+  background: linear-gradient(135deg,
+    var(--fut-bg-start),
+    var(--fut-bg-mid),
+    var(--fut-bg-end)
+  );
+  color: #e0e0e0;
+  overflow-x: hidden;
+}
+
+/* 4) Wrapper */
+#wrapper {
+  display: flex;
+  height: 100vh;
+  transition: all 0.3s ease;
+}
+#wrapper.toggled #sidebar-wrapper {
+  margin-left: -250px;
+}
+
+/* 5) Sidebar */
+#sidebar-wrapper {
+  display: flex;
+  flex-direction: column;
+  width: 250px;
+  height: 100vh;
+  background: var(--sidebar-bg);
+  border-right: 1px solid var(--border-color);
+  transition: all 0.3s ease;
+}
+.sidebar-logo {
+  text-align: center;
+  padding: 1.5rem 0;
+}
+.sidebar-logo img {
+  max-width: 120px;
+}
+.list-group-item {
+  background: transparent;
+  border: none;
+  color: var(--link-color);
+  font-weight: 600;
+  padding: 1rem 1.5rem;
+  transition: background 0.2s, color 0.2s;
+}
+.list-group-item:hover {
+  background: var(--link-hover-bg);
+  color: var(--link-color);
+}
+.list-group-item.active {
+  background: var(--active-bg);
+  color: var(--active-color);
+}
+#sidebar-wrapper .list-group-item-action:not(:last-child) {
+  border-bottom: 1px solid var(--border-color);
+}
+.upload-tile {
+  background: var(--tile-bg);
+  color: var(--link-color);
+  text-align: center;
+  padding: 1rem;
+  margin-top: auto;
+  transition: background 0.2s, color 0.2s;
+}
+.upload-tile:hover {
+  background: var(--tile-hover-bg);
+  color: var(--active-color);
+}
+
+/* 6) Page content & navbar */
+#page-content-wrapper {
+  flex: 1;
+  overflow-y: auto;
+}
+.navbar {
+  background: rgba(15,20,30,0.9);
+  border-bottom: 1px solid var(--fut-panel-border);
+}
+.navbar .btn {
+  background:#ffc107;
+  border: none;
+  font-family: 'Orbitron', sans-serif;
+}
+
+/* 7) Headings */
+ .up {
+  color: #212529;
+  text-shadow: 0 0 5px rgb(245, 248, 248);
+}
+h5{
+    color: #f5f52b;
+  text-shadow: 0 0 5px rgb(245, 248, 248);
+}
+
+h1{
+    color: #e0fc43;
+  text-shadow: 0 0 5px rgb(245, 248, 248);
+}
+
+/* 8) Upload page container */
+.upload-container {
+  max-width: 800px;
+  margin: 2rem auto;
+  padding: 2rem;
+  background: rgba(255,255,255,0.9);
+  border-radius: 12px;
+  box-shadow: 0 0 20px rgba(0,0,0,0.5);
+  color: #111;
+}
+.upload-container h1 {
+  font-size: 2.5rem;
+  color: var(--link-color);
+  text-shadow: 0 0 8px var(--tile-bg);
+  margin-bottom: 1.5rem;
+}
+.upload-container hr {
+  border-color: var(--border-color);
+  opacity: 0.7;
+}
+
+/* 9) Forms */
+#upload-form .form-control {
+  background: #fff;
+  border: 1px solid #ccc;
+  color: #111;
+}
+#upload-form .form-control:focus {
+  border-color: var(--link-color);
+  box-shadow: 0 0 6px rgba(0,65,130,0.5);
+}
+#upload-form .btn-primary {
+  background: var(--link-color);
+  border-color: var(--link-color);
+  font-weight: 600;
+}
+#upload-form .btn-primary:hover {
+  background: #00376a;
+  border-color: #00376a;
+}
+
+/* 10) Uploaded files list */
+.upload-container .list-group-item {
+  background: #f8f9fa;
+  border: 1px solid #ddd;
+  color: #333;
+}
+.upload-container .list-group-item + .list-group-item {
+  margin-top: 0.5rem;
+}
+.upload-container .list-group-item:hover {
+  background: #e2e6ea;
+}
+.upload-container .btn-outline-danger {
+  border-color: #c82333;
+  color: #c82333;
+}
+.upload-container .btn-outline-danger:hover {
+  background: #c82333;
+  color: #fff;
+}
+
+/* 11) Charts */
+canvas {
+  background: var(--fut-panel-bg);
+  border: 1px solid var(--fut-panel-border);
+  border-radius: 8px;
+  box-shadow: 0 0 15px rgba(15,52,96,0.5);
+}
+
+/* 12) Tables */
+.table-responsive {
+  background: rgba(20,20,30,0.9);
+  border: 1px solid var(--fut-panel-border);
+  border-radius: 8px;
+  padding: 1rem;
+}
+#rep-table th, #rep-table td {
+  border-color: #333;
+}
+#rep-table thead th {
+  background: var(--fut-accent);
+  color: #fff;
+}
+#rep-table tbody tr:hover {
+  background: rgba(15,52,96,0.5);
+}
+
+/* 13) Scrollbars */
+::-webkit-scrollbar {
+  width: 8px;
+}
+::-webkit-scrollbar-track {
+  background: #111;
+}
+::-webkit-scrollbar-thumb {
+  background: var(--fut-accent);
+  border-radius: 4px;
+}

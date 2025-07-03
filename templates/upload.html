@@ -1,0 +1,45 @@
+{% extends "base.html" %}
+{% block title %}Upload Files{% endblock %}
+{% block content %}
+  <div class="upload-container">
+    <h1>Upload Files</h1>
+
+    <form id="upload-form" method="post" enctype="multipart/form-data"
+          action="{{ url_for('upload_file') }}">
+      <div class="mb-3">
+        <input type="file" name="files[]" multiple
+               accept=".csv,.xls,.xlsx"
+               class="form-control" />
+      </div>
+      <button class="btn btn-primary">Upload</button>
+    </form>
+
+    <hr class="my-4">
+
+    <h5 class="up">Already Uploaded Files</h5>
+    {% if uploads %}
+      <ul class="list-group mb-4">
+        {% for u in uploads %}
+          <li class="list-group-item d-flex justify-content-between align-items-center">
+            <div>
+              {{ u.filename }}
+              <small class="text-muted ms-2">
+                ({{ u.uploaded_at.strftime('%Y-%m-%d %H:%M') }})
+              </small>
+            </div>
+            <form method="post"
+                  action="{{ url_for('delete_file', upload_id=u.id) }}"
+                  onsubmit="return confirm('Delete {{ u.filename }}?');">
+              <button type="submit"
+                      class="btn btn-sm btn-outline-danger">
+                Delete
+              </button>
+            </form>
+          </li>
+        {% endfor %}
+      </ul>
+    {% else %}
+      <p class="text-muted">No files uploaded yet.</p>
+    {% endif %}
+  </div>
+{% endblock %}

@@ -1,0 +1,68 @@
+/* Updated Sidebar Theme: White background, dark blue links, yellow tiles, active tile in black */
+
+:root {
+  --sidebar-bg:        #ffffff;  /* white background */
+  --link-color:        #004182;  /* dark blue links */
+  --link-hover-bg:     #f0f4f8;  /* light hover background */
+  --tile-bg:           #FFD100;  /* yellow tile */
+  --tile-hover-bg:     #e0c200;  /* darker yellow on hover */
+  --active-bg:         #000000;  /* black for active item */
+  --active-color:      #ffffff;  /* white text on active */
+  --border-color:      #d1d5db;  /* light gray borders */
+}
+
+#sidebar-wrapper {
+  display: flex;
+  flex-direction: column;
+  width: 250px;
+  height: 100vh;
+  background: var(--sidebar-bg);
+  border-right: 1px solid var(--border-color);
+  transition: all 0.3s ease;
+}
+
+.sidebar-logo {
+  text-align: center;
+  padding: 1.5rem 0;
+}
+
+.sidebar-logo img {
+  max-width: 120px;
+}
+
+.list-group-item {
+  background: transparent;
+  border: none;
+  color: var(--link-color);
+  font-weight: 600;
+  padding: 1rem 1.5rem;
+  transition: background 0.2s, color 0.2s;
+}
+
+.list-group-item:hover {
+  background: var(--link-hover-bg);
+  color: var(--link-color);
+}
+
+.list-group-item.active {
+  background: var(--active-bg);
+  color: var(--active-color);
+}
+
+#sidebar-wrapper .list-group-item-action:not(:last-child) {
+  border-bottom: 1px solid var(--border-color);
+}
+
+.upload-tile {
+  background: var(--tile-bg);
+  color: var(--link-color);
+  text-align: center;
+  padding: 1rem;
+  margin-top: auto;
+  transition: background 0.2s, color 0.2s;
+}
+
+.upload-tile:hover {
+  background: var(--tile-hover-bg);
+  color: var(--active-color);
+}

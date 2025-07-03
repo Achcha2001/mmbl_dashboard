@@ -1,0 +1,584 @@
+{% extends "base.html" %}
+{% block title %}Transactions Overview{% endblock %}
+{% block content %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Transactions Overview</title>
+  <style>
+    html {
+      scroll-behavior: smooth;
+    }
+  </style>
+</head>
+<body>
+<h1 class="mb-4">Transactions Overview</h1>
+
+<!-- Filters -->
+<div id="filters-section" class="row g-3 mb-4">
+  <div class="col-md-2">
+    <label for="year-select" class="form-label">Year</label>
+    <select id="year-select" class="form-select"></select>
+  </div>
+  <div class="col-md-2">
+    <label for="month-select" class="form-label">Month</label>
+    <select id="month-select" class="form-select">
+      <option value="">All</option>
+      <option value="01">Jan</option><option value="02">Feb</option>
+      <option value="03">Mar</option><option value="04">Apr</option>
+      <option value="05">May</option><option value="06">Jun</option>
+      <option value="07">Jul</option><option value="08">Aug</option>
+      <option value="09">Sep</option><option value="10">Oct</option>
+      <option value="11">Nov</option><option value="12">Dec</option>
+    </select>
+  </div>
+  <div class="col-md-2">
+    <label for="compare-year-select" class="form-label">Compare Year</label>
+    <select id="compare-year-select" class="form-select"></select>
+  </div>
+  <div class="col-md-2">
+    <label for="compare-month-select" class="form-label">Compare Month</label>
+    <select id="compare-month-select" class="form-select">
+      <option value="">All</option>
+      <option value="01">Jan</option><option value="02">Feb</option>
+      <option value="03">Mar</option><option value="04">Apr</option>
+      <option value="05">May</option><option value="06">Jun</option>
+      <option value="07">Jul</option><option value="08">Aug</option>
+      <option value="09">Sep</option><option value="10">Oct</option>
+      <option value="11">Nov</option><option value="12">Dec</option>
+    </select>
+  </div>
+  <div class="col-md-2 align-self-end">
+    <button id="filter-btn" class="btn btn-success w-100">Apply Filters</button>
+  </div>
+</div>
+
+<!-- Summary Cards -->
+<div id="summary-section" class="row mb-4">
+  <!-- Base Period -->
+  <div class="col-md-6">
+    <div class="card mb-3">
+      <div class="card-header bg-primary text-white">Base Period</div>
+      <div class="card-body">
+        <h5 id="base-count" class="card-title">Count: 0</h5>
+        <p id="base-amount" class="card-text">Total Amount: 0</p>
+        <h6>By Bank</h6>
+        <ul id="base-bank-list" class="list-group list-group-flush"></ul>
+        <!-- Base Period -->
+        <h6 class="mt-3">By Sender's Country</h6>
+        <ul id="base-country-list" class="list-group list-group-flush"></ul>
+        <button id="base-country-toggle" class="btn btn-link btn-sm" style="display:none;">
+          <span class="toggle-text">Show more</span>
+        </button>
+        <h6 class="mt-3">By Status</h6>
+        <ul id="base-status-list" class="list-group list-group-flush"></ul>
+      </div>
+    </div>
+  </div>
+  <!-- Compare Period -->
+  <div class="col-md-6">
+    <div class="card mb-3">
+      <div class="card-header bg-secondary text-white">Compare Period</div>
+      <div class="card-body">
+        <h5 id="comp-count" class="card-title">Count: 0</h5>
+        <p id="comp-amount" class="card-text">Total Amount: 0</p>
+        <h6>By Bank</h6>
+        <ul id="comp-bank-list" class="list-group list-group-flush"></ul>
+        <!-- Compare Period -->
+        <h6 class="mt-3">By Sender's Country</h6>
+        <ul id="comp-country-list" class="list-group list-group-flush"></ul>
+        <button id="comp-country-toggle" class="btn btn-link btn-sm" style="display:none;">
+          <span class="toggle-text">Show more</span>
+        </button>
+        <h6 class="mt-3">By Status</h6>
+        <ul id="comp-status-list" class="list-group list-group-flush"></ul>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Country Decline Section -->
+<div id="decline-section" class="mt-3"
+     style="background: #fff; border-radius: 10px; box-shadow: 0 2px 12px rgba(0,0,0,0.04); padding: 20px 16px;">
+  <h6 class="text-danger" style="font-weight:700; margin-bottom: 12px;">Countries with Declined Count</h6>
+  <ul id="country-decline-list" class="list-group list-group-flush"></ul>
+</div>
+
+<!-- Daily Comparison Chart -->
+<div id="daily-comparison-section" class="mb-5">
+  <h5>Daily Comparison</h5>
+  <canvas id="comparison-chart"></canvas>
+</div>
+
+<!-- Yearly Comparison Chart -->
+<div id="yearly-comparison-section" class="mb-5">
+  <h5>Yearly Comparison (Monthly Totals)</h5>
+  <canvas id="yearly-chart"></canvas>
+</div>
+
+<!-- Forecast Section -->
+<div id="forecast-section" class="mb-5">
+  <h5 id="forecast-title" class="text-light mb-3">Forecast</h5>
+  <!-- Key Metrics Cards -->
+  <div class="row mb-3" id="forecast-metrics" style="gap:16px"></div>
+  <div class="row g-3 align-items-end mb-4">
+    <div class="col-md-3">
+      <label for="forecast-year" class="form-label text-light">Forecast Year</label>
+      <select id="forecast-year" class="form-select">
+        <option value="2026" selected>2026</option>
+        <option value="2025">2025</option>
+        <option value="2024">2024</option>
+      </select>
+    </div>
+    <div class="col-md-3">
+      <label for="forecast-month" class="form-label text-light">Month (opt.)</label>
+      <select id="forecast-month" class="form-select">
+        <option value="">Full Year</option>
+        <option value="01">January</option>
+        <option value="02">February</option>
+        <option value="03">March</option>
+        <option value="04">April</option>
+        <option value="05">May</option>
+        <option value="06">June</option>
+        <option value="07">July</option>
+        <option value="08">August</option>
+        <option value="09">September</option>
+        <option value="10">October</option>
+        <option value="11">November</option>
+        <option value="12">December</option>
+      </select>
+    </div>
+    <div class="col-md-2 align-self-end">
+      <select id="forecast-chart-type" class="form-select">
+        <option value="line" selected>Line Chart</option>
+        <option value="bar">Bar Chart</option>
+      </select>
+    </div>
+    <div class="col-md-2 align-self-end">
+      <button id="predict-btn" class="btn btn-warning w-100" disabled>
+        <span id="predict-text">Predict</span>
+        <span id="predict-spinner" class="spinner-border spinner-border-sm text-light d-none" role="status"></span>
+      </button>
+    </div>
+  </div>
+  <div class="chart-container mb-4"
+       style="position:relative; width:100%; height:300px;
+              background:rgba(20,20,30,0.8); border:1px solid #444; border-radius:8px;">
+    <canvas id="forecast-chart"
+            style="width:100%; height:100%;"></canvas>
+  </div>
+</div>
+</body>
+</html>
+
+
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script>
+let fullData, fullRawRows;
+
+// Helper: Format number
+function formatAmount(n) {
+  return n.toLocaleString('en-US', {
+    minimumFractionDigits: 2,
+    maximumFractionDigits: 2
+  });
+}
+
+// Helper: Get filtered date keys
+function pickDates(y, m) {
+  return Object.keys(fullData.daily_counts)
+    .filter(d => (!y || d.startsWith(y)) && (!m || d.slice(5,7) === m));
+}
+
+// Helper: Sum up
+function sumOver(dates, map) {
+  return dates.reduce((s,d) => s + (map[d] || 0), 0);
+}
+
+// Populate dropdowns
+async function initFilters() {
+  const res = await fetch('/api/summary');
+  fullData = await res.json();
+
+  const years = [...new Set(
+    Object.keys(fullData.daily_counts).map(d => d.slice(0,4))
+  )].sort();
+  const ysel = document.getElementById('year-select');
+  const cysel = document.getElementById('compare-year-select');
+  years.forEach(y => {
+    ysel.add(new Option(y, y));
+    cysel.add(new Option(y, y));
+  });
+}
+
+// BANK ALIAS
+const BANK_ALIASES = { "CARGILLS": "CARGILLS", "Carg": "CARGILLS", };
+
+// Helper: Merge breakdown
+function buildBankBreakdown(dates) {
+  const out = {};
+  for (const [rawBank, dateMap] of Object.entries(fullData.bank_counts || {})) {
+    const std = BANK_ALIASES[rawBank] || rawBank;
+    const cnt = sumOver(dates, dateMap);
+    out[std] = (out[std] || 0) + cnt;
+  }
+  return out;
+}
+
+// NEW: Sender's Country breakdown (for filtered period)
+function buildCountryBreakdown(dates) {
+  const countryCounts = {};
+  if (!fullData.daily_senders_country_counts) return {};
+  dates.forEach(date => {
+    const dayMap = fullData.daily_senders_country_counts[date] || {};
+    Object.entries(dayMap).forEach(([country, cnt]) => {
+      countryCounts[country] = (countryCounts[country] || 0) + cnt;
+    });
+  });
+  return countryCounts;
+}  
+
+function getDeclinedCountries(baseCountry, compCountry) {
+  const result = [];
+  Object.keys(baseCountry).forEach(country => {
+    const baseCount = baseCountry[country] || 0;
+    const compCount = compCountry[country] || 0;
+    if (compCount < baseCount) {
+      result.push({
+        country,
+        base: baseCount,
+        compare: compCount,
+        diff: baseCount - compCount,
+        percent: baseCount ? (((baseCount - compCount) / baseCount) * 100).toFixed(1) : "0"
+      });
+    }
+  });
+  // Optionally, sort by highest decline first
+  result.sort((a, b) => b.diff - a.diff);
+  return result;
+}
+
+
+// NEW: Status breakdown (for filtered period)
+function buildStatusBreakdown(dates) {
+  const statusCounts = {};
+  if (!fullData.daily_status_counts) return {};
+  dates.forEach(date => {
+    const dayMap = fullData.daily_status_counts[date] || {};
+    Object.entries(dayMap).forEach(([status, cnt]) => {
+      statusCounts[status] = (statusCounts[status] || 0) + cnt;
+    });
+  });
+  return statusCounts;
+}
+
+// --- Toggleable (Show more/less) Country List ---
+function populateCountryListWithToggle(listId, data, toggleBtnId, N=5) {
+  const ul = document.getElementById(listId);
+  const btn = document.getElementById(toggleBtnId);
+  const entries = Object.entries(data);
+  let expanded = false;
+
+  function render() {
+    ul.innerHTML = '';
+    entries.forEach(([country, cnt], idx) => {
+      const li = document.createElement('li');
+      li.className = 'list-group-item d-flex justify-content-between';
+      li.innerHTML = `<span>${country}</span><span>${cnt}</span>`;
+      if (!expanded && idx >= N) li.style.display = 'none';
+      ul.appendChild(li);
+    });
+    if (entries.length > N) {
+      btn.style.display = '';
+      btn.querySelector('.toggle-text').textContent = expanded ? 'Show less' : 'Show more';
+    } else {
+      btn.style.display = 'none';
+    }
+  }
+  btn.onclick = () => { expanded = !expanded; render(); };
+  render();
+}
+
+// Populate breakdown list (no toggle)
+function populateList(id, data) {
+  const ul = document.getElementById(id);
+  ul.innerHTML = '';
+  for (const [k, v] of Object.entries(data)) {
+    const li = document.createElement('li');
+    li.className = 'list-group-item d-flex justify-content-between';
+    li.innerHTML = `<span><b>${k}</b></span><span><b>${v}</b></span>`;
+    ul.appendChild(li);
+  }
+}
+
+// Draw daily/Yearly charts
+function drawComparisonChart(bd, cd) {
+  const ctx = document.getElementById('comparison-chart').getContext('2d');
+  if (window.dailyChart) window.dailyChart.destroy();
+  const labels = [...new Set([...Object.keys(bd), ...Object.keys(cd)])].sort();
+  const bVals = labels.map(l => bd[l] || 0);
+  const cVals = labels.map(l => cd[l] || 0);
+  window.dailyChart = new Chart(ctx, {
+    type: 'bar',
+    data: {
+      labels,
+      datasets: [
+        { label: 'Base',    data: bVals, backgroundColor: 'rgba(0,65,130,0.7)' },
+        { label: 'Compare', data: cVals, backgroundColor: 'rgba(0,161,228,0.7)' }
+      ]
+    },
+    options: { scales: { y: { beginAtZero: true } } }
+  });
+}
+function drawYearlyChart(year1Data, year2Data, label1, label2) {
+  const ctx = document.getElementById('yearly-chart').getContext('2d');
+  if (window.yearChart) window.yearChart.destroy();
+  const months = ['01','02','03','04','05','06','07','08','09','10','11','12'];
+  const y1 = months.map(m => year1Data[m] || 0);
+  const y2 = months.map(m => year2Data[m] || 0);
+  window.yearChart = new Chart(ctx, {
+    type: 'line',
+    data: {
+      labels: months,
+      datasets: [
+        { label: label1, data: y1, tension: 0.3, borderColor: 'rgba(0,65,130,0.8)', fill: false },
+        { label: label2, data: y2, tension: 0.3, borderColor: 'rgba(0,161,228,0.8)', fill: false }
+      ]
+    },
+    options: { scales: { y: { beginAtZero: true } } }
+  });
+}
+async function drawForecast(year, month, chartType = 'line') {
+  const params = new URLSearchParams({ year, month });
+  const res    = await fetch('/api/forecast?' + params.toString());
+  const data   = await res.json();
+
+  const labels = Object.keys(data);
+  const values = Object.values(data);
+
+  // Find next predicted value and growth
+  let latest = values[values.length - 1] || 0;
+  let prev = values.length > 1 ? values[values.length - 2] : 0;
+  let growth = prev ? ((latest - prev) / prev * 100).toFixed(2) : '0';
+
+  // Show key metrics
+  document.getElementById('forecast-metrics').innerHTML = `
+    <div class="col-auto">
+      <div class="card text-center shadow-sm bg-success text-white" style="min-width:160px;">
+        <div class="card-body">
+          <h6 class="card-title mb-1">Next Value</h6>
+          <span style="font-size:1.3rem; font-weight:bold">${latest.toLocaleString(undefined, {maximumFractionDigits: 0})}</span>
+        </div>
+      </div>
+    </div>
+    <div class="col-auto">
+      <div class="card text-center shadow-sm bg-info text-white" style="min-width:160px;">
+        <div class="card-body">
+          <h6 class="card-title mb-1">Change %</h6>
+          <span style="font-size:1.3rem; font-weight:bold">${growth}%</span>
+        </div>
+      </div>
+    </div>
+    <div class="col-auto">
+      <div class="card text-center shadow-sm bg-dark text-white" style="min-width:160px;">
+        <div class="card-body">
+          <h6 class="card-title mb-1">High/Low</h6>
+          <span style="font-size:1.3rem; font-weight:bold">
+            ${Math.max(...values).toLocaleString(undefined, {maximumFractionDigits: 0})}
+            /
+            ${Math.min(...values).toLocaleString(undefined, {maximumFractionDigits: 0})}
+          </span>
+        </div>
+      </div>
+    </div>
+  `;
+
+  // Title
+  const title = month ? `${year}-${month} Forecast` : `${year} Forecast (Monthly)`;
+  document.getElementById('forecast-title').textContent = title;
+
+  // Chart
+  const ctx = document.getElementById('forecast-chart').getContext('2d');
+  if (window.forecastChart) window.forecastChart.destroy();
+  window.forecastChart = new Chart(ctx, {
+    type: chartType,
+    data: {
+      labels,
+      datasets: [{
+        label: 'Forecast',
+        data: values,
+        borderColor: 'rgba(255,193,7,0.9)',
+        backgroundColor: 'rgba(255,193,7,0.3)',
+        pointBackgroundColor: 'rgba(255,193,7,1)',
+        tension: 0.4,
+        fill: chartType === 'line',
+      }]
+    },
+    options: {
+      scales: { y: { beginAtZero: true } },
+      plugins: { legend: { labels: { color:'#ff0' } } },
+      responsive: true,
+      animation: {
+        duration: 800,
+        easing: 'easeOutQuart'
+      },
+      hover: {
+        mode: 'nearest',
+        intersect: true
+      }
+    }
+  });
+}
+
+// React to chart type change
+document.getElementById('forecast-chart-type').addEventListener('change', (e) => {
+  const chartType = e.target.value;
+  const year = document.getElementById('forecast-year').value;
+  const month = document.getElementById('forecast-month').value;
+  drawForecast(year, month, chartType);
+});
+
+// Prediction button logic (enable as per your flow)
+const predictBtn     = document.getElementById('predict-btn');
+const predictText    = document.getElementById('predict-text');
+const predictSpinner = document.getElementById('predict-spinner');
+
+predictBtn.addEventListener('click', async () => {
+  const year  = document.getElementById('forecast-year').value;
+  const month = document.getElementById('forecast-month').value;
+  const chartType = document.getElementById('forecast-chart-type').value;
+  predictSpinner.classList.remove('d-none');
+  predictBtn.disabled = true;
+  predictText.textContent = 'Predicting…';
+  try {
+    await drawForecast(year, month, chartType);
+  } catch(err) {
+    console.error(err);
+    alert('Forecast failed.');
+  } finally {
+    predictSpinner.classList.add('d-none');
+    predictBtn.disabled = false;
+    predictText.textContent = 'Predict';
+  }
+});
+
+
+// Initial load
+window.addEventListener('DOMContentLoaded', async () => {
+  await initFilters();
+  predictBtn.disabled = false;
+  drawForecast(
+    document.getElementById('forecast-year').value,
+    document.getElementById('forecast-month').value
+  );
+  // Also run default view:
+  document.getElementById('filter-btn').click();
+});
+
+predictBtn.addEventListener('click', async () => {
+  const year  = document.getElementById('forecast-year').value;
+  const month = document.getElementById('forecast-month').value;
+  predictSpinner.classList.remove('d-none');
+  predictBtn.disabled = true;
+  predictText.textContent = 'Predicting…';
+  try {
+    await drawForecast(year, month);
+  } catch(err) {
+    console.error(err);
+    alert('Forecast failed.');
+  } finally {
+    predictSpinner.classList.add('d-none');
+    predictBtn.disabled = false;
+    predictText.textContent = 'Predict';
+  }
+});
+
+// Main "Apply Filters"
+document.getElementById('filter-btn').addEventListener('click', () => {
+  const y  = document.getElementById('year-select').value;
+  const m  = document.getElementById('month-select').value;
+  const cy = document.getElementById('compare-year-select').value;
+  const cm = document.getElementById('compare-month-select').value;
+
+  const baseDates = pickDates(y, m);
+  const compDates = pickDates(cy, cm);
+  const baseCnt = sumOver(baseDates, fullData.daily_counts);
+  const compCnt = sumOver(compDates, fullData.daily_counts);
+  const baseAmt = sumOver(baseDates, fullData.daily_amounts||{});
+  const compAmt = sumOver(compDates, fullData.daily_amounts||{});
+  document.getElementById('base-count').innerText  = `Count: ${baseCnt}`;
+  document.getElementById('base-amount').innerText = `Total Amount: ${formatAmount(baseAmt)}`;
+  document.getElementById('comp-count').innerText  = `Count: ${compCnt}`;
+  document.getElementById('comp-amount').innerText = `Total Amount: ${formatAmount(compAmt)}`;
+
+  // By Bank
+  populateList('base-bank-list', buildBankBreakdown(baseDates));
+  populateList('comp-bank-list', buildBankBreakdown(compDates));
+  // By Sender's Country (with toggle)
+  populateCountryListWithToggle('base-country-list', buildCountryBreakdown(baseDates), 'base-country-toggle', 5);
+  populateCountryListWithToggle('comp-country-list', buildCountryBreakdown(compDates), 'comp-country-toggle', 5);
+  // By Status
+  populateList('base-status-list', buildStatusBreakdown(baseDates));
+  populateList('comp-status-list', buildStatusBreakdown(compDates));
+
+  // === DECLINED COUNTRY SECTION ===
+  const baseCountry = buildCountryBreakdown(baseDates);
+  const compCountry = buildCountryBreakdown(compDates);
+  const declined = getDeclinedCountries(baseCountry, compCountry);
+
+  const declineList = document.getElementById('country-decline-list');
+  declineList.innerHTML = '';
+  if (declined.length === 0) {
+    declineList.innerHTML = `<li class="list-group-item text-success">No declines!</li>`;
+  } else {
+    declined.forEach(item => {
+      declineList.innerHTML += `
+        <li class="list-group-item d-flex justify-content-between align-items-center">
+          <span>${item.country}</span>
+          <span>
+            <span class="badge bg-secondary me-2">Base: ${item.base}</span>
+            <span class="badge bg-warning text-dark me-2">Now: ${item.compare}</span>
+            <span class="badge bg-danger">▼ ${item.diff} (${item.percent}%)</span>
+          </span>
+        </li>
+      `;
+    });
+  }
+
+  // Charts
+  drawComparisonChart(
+    Object.fromEntries(baseDates.map(d=>[d,fullData.daily_counts[d]])),
+    Object.fromEntries(compDates.map(d=>[d,fullData.daily_counts[d]]))
+  );
+  const agg = dates => {
+    const s = {};
+    dates.forEach(d=>{
+      const mo = d.slice(5,7);
+      s[mo] = (s[mo]||0) + fullData.daily_counts[d];
+    });
+    return s;
+  };
+  drawYearlyChart(agg(baseDates), agg(compDates), y||'Base', cy||'Compare');
+  populateRepTable(fullData.rep_counts, fullData.visit_info);
+});
+
+
+// Rep summary
+function populateRepTable(cnts, visits) {
+  const tb = document.querySelector('#rep-table tbody');
+  tb.innerHTML = '';
+  for (const [rep, cnt] of Object.entries(cnts)) {
+    const v = visits[rep] || {};
+    tb.insertAdjacentHTML('beforeend', `
+      <tr>
+        <td>${rep}</td>
+        <td>${cnt}</td>
+        <td>${v.first || ''}</td>
+        <td>${v.last  || ''}</td>
+      </tr>`);
+  }
+}
+</script>
+
+{% endblock %}
