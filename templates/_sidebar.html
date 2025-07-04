@@ -1,9 +1,12 @@
 <div id="sidebar-wrapper">
   <div class="sidebar-logo text-center py-4">
+  <a href="{{ url_for('view_transactions') }}">
     <img src="{{ url_for('static', filename='images/mmbl-logo.png') }}"
          alt="MMBL Logo"
          class="img-fluid" />
-  </div>
+  </a>
+</div>
+
   <nav class="list-group list-group-flush flex-column h-100">
     <!-- Section Scroll Links for the Dashboard page -->
     <a href="#filters-section" class="list-group-item list-group-item-action">
